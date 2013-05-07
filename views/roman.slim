@@ -1,0 +1,8 @@
+h1 Roman Numerals
+table
+  - (1..10).each do |x|
+    tr
+      - (0..9).each do |y|
+        - i = 10 * y + x
+        td = i
+        td = i.to_roman
