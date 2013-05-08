@@ -3,6 +3,7 @@ require 'slim'
 require 'json'
 require 'open-uri'
 require 'openssl'
+require 'github_api'
 
 class Integer
   def to_roman
@@ -59,6 +60,36 @@ get '/appnet' do
   end
   
   slim :appnet
+end
+
+get '/github' do
+  date_limit = Time.now - 6 * 30 * 24 * 60 * 60 # 6 months
+  
+  github = Github.new basic_auth: ENV['GITHUB_BASIC_AUTH'], ssl: { verify: false }
+  # TODO fix SSL authentication error
+  #   public requests will do... for now
+  # github.oauth.create
+  commits = github.repos.commits.all 'rails', 'rails', since: date_limit.iso8601, auto_pagination: true
+  
+  @commits_per_month = {}
+  
+  commits.each do |commit_hash|
+    author = commit_hash['commit']['author']['name']
+    date = Time.parse commit_hash['commit']['author']['date']
+    
+    # BUG why am I getting commits with older dates?
+    #   maybe I'm reading the wrong timestamp field from the commit_hash?
+    #   probably need to study GitHub API
+    #   working around the issue by skipping 'unexpected'/unwanted results
+    next if date < date_limit
+    
+    timestamp = date.strftime('%Y%m')
+    @commits_per_month[timestamp] ||= {}
+    @commits_per_month[timestamp][author] ||= 0
+    @commits_per_month[timestamp][author] += 1
+  end
+  
+  @commits_per_month.inspect
 end
 
 helpers do
