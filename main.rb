@@ -2,7 +2,6 @@ require 'sinatra'
 require 'slim'
 require 'json'
 require 'open-uri'
-require 'openssl'
 require 'github_api'
 
 class Integer
@@ -47,7 +46,7 @@ end
 get '/appnet' do
   appnet_global_feed = 'https://alpha-api.app.net/stream/0/posts/stream/explore/posts'
   begin
-    result = JSON.parse(open(appnet_global_feed, :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE).read)
+    result = JSON.parse(open(appnet_global_feed, ssl_verify_mode: 0).read)
   rescue
     @error = 'Error retrieving global feed.'
   end
@@ -66,9 +65,6 @@ get '/github' do
   date_limit = Time.now - 6 * 30 * 24 * 60 * 60 # 6 months
   
   github = Github.new basic_auth: ENV['GITHUB_BASIC_AUTH'], ssl: { verify: false }
-  # TODO fix SSL authentication error
-  #   public requests will do... for now
-  # github.oauth.create
   commits = github.repos.commits.all 'rails', 'rails', since: date_limit.iso8601, auto_pagination: true
   
   # TODO error handling, cache results
