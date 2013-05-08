@@ -1,0 +1,10 @@
+h1 GitHub Rockstars
+ul
+  - @months.each do |month_info|
+    - timestamp, contributors = month_info
+    li
+      = timestamp
+      ol
+        - contributors.sort_by{|k| k[1]}.reverse[0..2].each do |contributor_info|
+          - name, total_commits = contributor_info
+          li = "#{name} (#{total_commits} commits)"

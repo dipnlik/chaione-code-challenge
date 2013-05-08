@@ -71,7 +71,9 @@ get '/github' do
   # github.oauth.create
   commits = github.repos.commits.all 'rails', 'rails', since: date_limit.iso8601, auto_pagination: true
   
-  @commits_per_month = {}
+  # TODO error handling, cache results
+  
+  commits_per_month = {}
   
   commits.each do |commit_hash|
     author = commit_hash['commit']['author']['name']
@@ -83,13 +85,15 @@ get '/github' do
     #   working around the issue by skipping 'unexpected'/unwanted results
     next if date < date_limit
     
-    timestamp = date.strftime('%Y%m')
-    @commits_per_month[timestamp] ||= {}
-    @commits_per_month[timestamp][author] ||= 0
-    @commits_per_month[timestamp][author] += 1
+    timestamp = date.strftime('%Y-%m')
+    commits_per_month[timestamp] ||= {}
+    commits_per_month[timestamp][author] ||= 0
+    commits_per_month[timestamp][author] += 1
   end
   
-  @commits_per_month.inspect
+  @months = commits_per_month.sort_by{|k| k}.reverse
+  
+  slim :github
 end
 
 helpers do
