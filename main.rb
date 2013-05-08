@@ -24,11 +24,28 @@ class Integer
   end
 end
 
-
 get '/' do
   slim :index
 end
 
+get '/donkeykong' do
+  @results = []
+  (1..100).each do |i|
+    @results << donkeykong(i)
+  end
+  slim :donkeykong
+end
+
 get '/roman' do
   slim :roman
+end
+
+helpers do
+  def donkeykong(number)
+    output = ''
+    output << 'Donkey' if number % 3 == 0
+    output << 'Kong' if number % 5 == 0
+    output = number if output.empty?
+    output
+  end
 end
