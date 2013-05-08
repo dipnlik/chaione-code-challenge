@@ -1,5 +1,8 @@
 require 'sinatra'
 require 'slim'
+require 'json'
+require 'open-uri'
+require 'openssl'
 
 class Integer
   def to_roman
@@ -38,6 +41,24 @@ end
 
 get '/roman' do
   slim :roman
+end
+
+get '/appnet' do
+  appnet_global_feed = 'https://alpha-api.app.net/stream/0/posts/stream/explore/posts'
+  begin
+    result = JSON.parse(open(appnet_global_feed, :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE).read)
+  rescue
+    @error = 'Error retrieving global feed.'
+  end
+  
+  unless result.nil?
+    @posts = []
+    result['data'].each do |post|
+      @posts << {username: post['user']['username'], text: post['text']}
+    end
+  end
+  
+  slim :appnet
 end
 
 helpers do

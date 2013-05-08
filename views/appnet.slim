@@ -1,0 +1,9 @@
+h1 App.Net Global Feed
+- if @error
+  p: strong = @error
+- else
+  ul
+    - @posts.each do |post|
+      li
+        strong =' post[:username]
+        = post[:text]
