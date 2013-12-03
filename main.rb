@@ -44,7 +44,7 @@ get '/roman' do
 end
 
 get '/appnet' do
-  appnet_global_feed = 'https://alpha-api.app.net/stream/0/posts/stream/explore/posts'
+  appnet_global_feed = 'https://alpha-api.app.net/stream/0/posts/stream/global'
   begin
     result = JSON.parse(open(appnet_global_feed, ssl_verify_mode: 0).read)
   rescue
